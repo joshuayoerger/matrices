@@ -11,45 +11,60 @@ import random
 ## First, some tools for manipulating vectors and matrices:
 ###############################################################################
 
+
 def biggest(M):
-    return max([max(list(map(lambda x:len(str(x)),row))) for row in M])
+    # Alternately and perhaps ever so slightly faster:
+    # return max((max((len(str(x)) for x in row)) for row in M))
+    return max([max(list(map(lambda x:len(str(x)), row))) for row in M])
 
-def printrow(row,dplace):
+
+def printrow(row,  dplace):
     fstr = '%'+str(dplace)+'s '
-    print('[ '+reduce(lambda a,b:a+b,list(map(lambda x:fstr%str(x),row)))+']')
+    print('[ '+reduce(lambda a, b: a+b,
+                      list(map(lambda x: fstr % str(x), row)))+']')
     return None
 
-def pr1(row,dplace):
+
+def pr1(row, dplace):
     fstr = str(dplace)+'s '
-    print('[ '+reduce(lambda a,b:a+b,list(map(lambda x:str(x)%fstr,row)))+' ]')
+    print('[ '+reduce(lambda a, b: a+b,
+                      list(map(lambda x: str(x) % fstr, row)))+' ]')
     return None
+
 
 def mtxprint(M):
-    dpl=biggest(M)
+    dpl = biggest(M)
     for row in M:
-        printrow(row,dpl)
+        printrow(row, dpl)
     return None
+
 
 def sqrt(x):
     return x**(1/2)
 
-def add_vects(v1,v2):
-    return [x+y for x,y in zip(v1,v2)]
 
-def inner_product(v1,v2):
-    return sum([x*y for x,y in zip(v1,v2)])
+def add_vects(v1, v2):
+    return [x+y for x, y in zip(v1, v2)]
+
+
+def inner_product(v1, v2):
+    return sum([x*y for x, y in zip(v1, v2)])
+
 
 def norm(v):
     return sqrt(sum([x*x for x in v]))
 
-def scale(c,v):
+
+def scale(c, v):
     return [c*x for x in v]
 
+
 def is_zero(v):
-    for x in range(len(v)):   
+    for x in range(len(v)):
         if v[x] != 0:
             return False
     return True
+
 
 def normalize(v):
     if is_zero(v):
@@ -58,11 +73,13 @@ def normalize(v):
     else:
         return scale(1/norm(v),v)
 
-def proj(u,v):
+
+def proj(u, v):
     ## projects v onto u
     return scale((inner_product(v,u)/inner_product(u,u)),u)
 
-def grab_column(M,n):
+
+def grab_column(M, n):
     ## grabs and transposes a column a_n of the matrix A
     if n > len(M[0]):
         print("Error. The matrix has fewer than "+str(n)+" columns!")
@@ -70,8 +87,10 @@ def grab_column(M,n):
     else:
         return [M[x][n-1] for x in range(len(M))]
 
+
 def transpose(M):
     return [list(x) for x in zip(*M)]
+
 
 def sum_vects(vects):
     ans = []
@@ -79,9 +98,11 @@ def sum_vects(vects):
         ans = ans + [sum(vects[j][k] for j in range(len(vects)))]
     return ans
 
-def rem_row(M,row):
+
+def rem_row(M, row):
     copy = [r[:] for r in M]
-    return [copy[i] for i in range(len(copy)) if i != row-1] 
+    return [copy[i] for i in range(len(copy)) if i != row-1]
+
 
 def rem_zero_rows(M):
     for x in range(len(M)):
@@ -89,21 +110,25 @@ def rem_zero_rows(M):
             return rem_zero_rows(rem_row(M,x+1))
     return M
 
+
 def nrows(M):
     return len(M)
+
 
 def ncols(M):
     return len(M[0])
 
-def randmtx(rows,cols,low_val,high_val,mtx=[]):
-    ## returns a matrix of size rows x cols with pseudo-random, integer
-    ## entries from the interval [low_val,high_val]. I wrote this to offset
-    ## my lack of creativity when making up matrices to test functions on.
+
+def randmtx(rows, cols, low_val, high_val, mtx=[]):
+    ## returns a matrix of size rows x cols with pseudo-random, integer entries
+    ## from the interval [low_val, high_val]. I wrote this to compensate for my
+    ## lack of creativity when making up matrices for use in testing functions.
     for i in range(rows):
         mtx = mtx + [[random.randrange(low_val,high_val) for j in range(cols)]]
     return mtx
 
-def mtx_mult(M1,M2):
+
+def mtx_mult(M1, M2):
     return [[inner_product(r,c) for r,c in zip([r for i in range(nrows(M2))],
                                                   transpose(M2))] for r in M1]
 
@@ -111,13 +136,14 @@ def mtx_mult(M1,M2):
 ##
 ## My implementation of the classical (i.e. numerically unstable) Gram-Schmidt
 ## algorithm. Actually appears pretty stable, though I'm not sure how to
-## adequately test this. Notice that the matrix M is first transposed since 
+## adequately test this. Notice that the matrix M is first transposed since
 ## it is somewhat less cumbersome to work with rows than with columns. At the
-## end of the process we transpose again restoring the original orientation. 
+## end of the process we transpose again restoring the original orientation.
 ## The column space of Q is the same as that of M, but now the columns are
 ## linearly indenpendent unit length (normalized) vectors.
 ##
 ###############################################################################
+
 
 def classical_gram_schmidt(M):
     V = transpose(M)
@@ -130,12 +156,13 @@ def classical_gram_schmidt(M):
 ###############################################################################
 ##
 ## The final product - a QR decomposition algorithm. It first computes Q by
-## means of classical Gram-Schmidt algorithm above. Next we take advantage of 
+## means of classical Gram-Schmidt algorithm above. Next we take advantage of
 ## the fact that (Q^T)*(Q) = I to compute R. If we want M = QR notice that
 ## (Q^T)*M = (Q^T)*Q*R = I*R = R. Thus R = (Q^T)*M. After computing Q and R we
 ## compute Q*R and print all four matrices.
 ##
 ###############################################################################
+
 
 def QR_decomp(M):
     if nrows(M) != ncols(M):
@@ -163,16 +190,20 @@ def QR_decomp(M):
 ##
 ###############################################################################
 
+
 def complex_conj(z):
     return [z[0],(-1)*z[1]]
-    
-def add_complex(z1,z2):
+
+
+def add_complex(z1, z2):
     return [x+y for x,y in zip(z1,z2)]
 
-def mult_complex(z1,z2):
+
+def mult_complex(z1, z2):
     return [z1[0]*z2[0] - z1[1]*z2[1],z1[0]*z2[1] + z1[1]*z2[0]]
 
-def div_complex(z1,z2):
+
+def div_complex(z1, z2):
     if is_zero(z2):
         print("Division by zero is undefined.")
         return None
@@ -180,11 +211,14 @@ def div_complex(z1,z2):
         return [(z1[0]*z2[0] + z1[1]*z2[1])/(z2[0]**2 + z2[1]**2),
                 (z1[1]*z2[0] - z1[0]*z2[1])/(z2[0]**2 + z2[1]**2)]
 
-def scale_complex_vects(c,z):
+
+def scale_complex_vects(c, z):
     return [mult_complex(c,x) for x in z]
 
-def add_complex_vects(z1,z2):
+
+def add_complex_vects(z1, z2):
     return [add_complex(x,y) for x,y in zip(z1,z2)]
+
 
 def sum_complex(terms):
     ans = []
@@ -192,23 +226,29 @@ def sum_complex(terms):
         ans = ans + [sum(terms[j][k] for j in range(len(terms)))]
     return ans
 
-def dot_complex_vects(v1,v2):
+
+def dot_complex_vects(v1, v2):
     return sum_complex([mult_complex(x,complex_conj(y)) for x,y in zip(v1,v2)])
 
-def proj_complex_vects(u,v):
+
+def proj_complex_vects(u, v):
     ## projects v onto u
     return scale_complex_vects(div_complex(dot_complex_vects(v,u),
-           dot_complex_vects(u,u)),u) 
-    
+           dot_complex_vects(u,u)),u)
+
+
 def vect_conj(v):
     return [complex_conj(v[x]) for x in range(len(v))]
 
-def mtx_conj(M,ans=[]):
+
+def mtx_conj(M, ans=[]):
     return [vect_conj(M[x]) for x in range(len(M))]
 
-def mult_complex_mtx(M1,M2):
-    return [[dot_complex_vects(r,c) for r,c in 
+
+def mult_complex_mtx(M1, M2):
+    return [[dot_complex_vects(r,c) for r,c in
            zip([r for i in range(nrows(M2))], transpose(M2))] for r in M1]
+
 
 def complex_sqrt(z):
     if z[1] < 0:
@@ -217,9 +257,11 @@ def complex_sqrt(z):
     else:
         return [sqrt((z[0] + sqrt(z[0]**2 + z[1]**2))/2),
                sqrt((-z[0] + sqrt(z[0] + z[1]**2))/2)]
- 
+
+
 def complex_norm(v):
     return sqrt(dot_complex_vects(v,v))
+
 
 def normalize_complex_vect(v):
     if is_zero_row(v):
@@ -228,11 +270,13 @@ def normalize_complex_vect(v):
     else:
         return scale(1/norm(v),v)
 
+
 def is_zero_row(v):
     for x in range(len(v)):
         if not is_zero(v[x]):
             return False
     return True
+
 
 def rem_zero_rows_complex(M):
     for x in range(len(M)):
@@ -240,14 +284,13 @@ def rem_zero_rows_complex(M):
             return rem_zero_rows_complex(rem_row(M,x+1))
     return M
 
+
 def complex_gram_schmidt(M):
     V = transpose(M)
     Q = [V[0]]
     for j in range(1,len(V)):
         Q = Q + [add_complex_vects(V[j],
-            scale_complex_vects(-1,sum_complex([proj_complex_vects(Q[x],V[j]) 
+            scale_complex_vects(-1,sum_complex([proj_complex_vects(Q[x],V[j])
             for x in range(j)])))]
     Q = rem_zero_rows_complex(Q)
     return transpose([normalize(Q[x]) for x in range(len(Q))])
-
-
