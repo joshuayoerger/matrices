@@ -71,12 +71,12 @@ def normalize(v):
         print("Error. Cannot normalize the zero vector")
         return None
     else:
-        return scale(1/norm(v),v)
+        return scale(1/norm(v), v)
 
 
 def proj(u, v):
     ## projects v onto u
-    return scale((inner_product(v,u)/inner_product(u,u)),u)
+    return scale((inner_product(v, u)/inner_product(u, u)), u)
 
 
 def grab_column(M, n):
@@ -107,7 +107,7 @@ def rem_row(M, row):
 def rem_zero_rows(M):
     for x in range(len(M)):
         if is_zero(M[x]):
-            return rem_zero_rows(rem_row(M,x+1))
+            return rem_zero_rows(rem_row(M, x+1))
     return M
 
 
@@ -124,13 +124,16 @@ def randmtx(rows, cols, low_val, high_val, mtx=[]):
     ## from the interval [low_val, high_val]. I wrote this to compensate for my
     ## lack of creativity when making up matrices for use in testing functions.
     for i in range(rows):
-        mtx = mtx + [[random.randrange(low_val,high_val) for j in range(cols)]]
+        mtx = mtx + [[random.randrange(low_val, high_val)
+                      for j in range(cols)]]
     return mtx
 
 
 def mtx_mult(M1, M2):
-    return [[inner_product(r,c) for r,c in zip([r for i in range(nrows(M2))],
-                                                  transpose(M2))] for r in M1]
+    return [[inner_product(r, c)
+             for r, c
+             in zip([r for i in range(nrows(M2))], transpose(M2))]
+             for r in M1]
 
 ###############################################################################
 ##
@@ -148,8 +151,15 @@ def mtx_mult(M1, M2):
 def classical_gram_schmidt(M):
     V = transpose(M)
     Q = [V[0]]
-    for j in range(1,len(V)):
-        Q = Q + [add_vects(V[j],scale(-1,sum_vects([proj(Q[x],V[j]) for x in range(j)])))]
+    for j in range(1, len(V)):
+        # The following statement is not very clear or readable in my opinion
+        # I need to refactor this function to fix this issue.
+        Q = Q + [add_vects(V[j],
+                           scale(-1,
+                                 sum_vects([proj(Q[x], V[j]) for x in range(j)])
+                                )
+                          )
+                ]
     Q = rem_zero_rows(Q)
     return transpose([normalize(Q[x]) for x in range(len(Q))])
 
@@ -170,8 +180,8 @@ def QR_decomp(M):
         return None
     else:
         Q = classical_gram_schmidt(M)
-        R = mtx_mult(transpose(Q),M)
-        QR = mtx_mult(Q,R)
+        R = mtx_mult(transpose(Q), M)
+        QR = mtx_mult(Q, R)
         print("Original matrix = ")
         mtxprint(M)
         print("Q = ")
@@ -192,15 +202,15 @@ def QR_decomp(M):
 
 
 def complex_conj(z):
-    return [z[0],(-1)*z[1]]
+    return [z[0], (-1)*z[1]]
 
 
 def add_complex(z1, z2):
-    return [x+y for x,y in zip(z1,z2)]
+    return [x+y for x, y in zip(z1, z2)]
 
 
 def mult_complex(z1, z2):
-    return [z1[0]*z2[0] - z1[1]*z2[1],z1[0]*z2[1] + z1[1]*z2[0]]
+    return [z1[0]*z2[0] - z1[1]*z2[1], z1[0]*z2[1] + z1[1]*z2[0]]
 
 
 def div_complex(z1, z2):
@@ -213,11 +223,11 @@ def div_complex(z1, z2):
 
 
 def scale_complex_vects(c, z):
-    return [mult_complex(c,x) for x in z]
+    return [mult_complex(c, x) for x in z]
 
 
 def add_complex_vects(z1, z2):
-    return [add_complex(x,y) for x,y in zip(z1,z2)]
+    return [add_complex(x, y) for x, y in zip(z1, z2)]
 
 
 def sum_complex(terms):
@@ -228,13 +238,15 @@ def sum_complex(terms):
 
 
 def dot_complex_vects(v1, v2):
-    return sum_complex([mult_complex(x,complex_conj(y)) for x,y in zip(v1,v2)])
+    return sum_complex(
+                [mult_complex(x, complex_conj(y))
+                        for x, y in zip(v1,v2)])
 
 
 def proj_complex_vects(u, v):
     ## projects v onto u
-    return scale_complex_vects(div_complex(dot_complex_vects(v,u),
-           dot_complex_vects(u,u)),u)
+    return scale_complex_vects(div_complex(dot_complex_vects(v, u),
+           dot_complex_vects(u, u)), u)
 
 
 def vect_conj(v):
@@ -260,7 +272,7 @@ def complex_sqrt(z):
 
 
 def complex_norm(v):
-    return sqrt(dot_complex_vects(v,v))
+    return sqrt(dot_complex_vects(v, v))
 
 
 def normalize_complex_vect(v):
@@ -268,7 +280,7 @@ def normalize_complex_vect(v):
         print("Error. Cannot normalize the zero vector")
         return None
     else:
-        return scale(1/norm(v),v)
+        return scale(1/norm(v), v)
 
 
 def is_zero_row(v):
@@ -281,16 +293,17 @@ def is_zero_row(v):
 def rem_zero_rows_complex(M):
     for x in range(len(M)):
         if is_zero_row(M[x]):
-            return rem_zero_rows_complex(rem_row(M,x+1))
+            return rem_zero_rows_complex(rem_row(M, x+1))
     return M
 
 
 def complex_gram_schmidt(M):
     V = transpose(M)
     Q = [V[0]]
-    for j in range(1,len(V)):
+    for j in range(1, len(V)):
+        # Need to fix formatting to comform with PEP 8 and maybe rewrite as well
         Q = Q + [add_complex_vects(V[j],
-            scale_complex_vects(-1,sum_complex([proj_complex_vects(Q[x],V[j])
+            scale_complex_vects(-1, sum_complex([proj_complex_vects(Q[x], V[j])
             for x in range(j)])))]
     Q = rem_zero_rows_complex(Q)
     return transpose([normalize(Q[x]) for x in range(len(Q))])
